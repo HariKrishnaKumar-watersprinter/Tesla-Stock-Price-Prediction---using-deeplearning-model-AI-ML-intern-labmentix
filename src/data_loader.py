@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 def load_data():
-    os.chdir('F:\\Project\Labmantix\\tesla stock price prediction\\streamlit')
+    os.chdir('https://raw.github.com/HariKrishnaKumar-watersprinter/Tesla-Stock-Price-Prediction---using-deeplearning-model-AI-ML-intern-labmentix/data/TSLA.csv')
     path = os.path.join(os.getcwd(), "data", "TSLA.csv")
     
     df = pd.read_csv(path)
