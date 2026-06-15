@@ -8,4 +8,5 @@ joblib
 tensorflow
 keras
 scipy
+statsmodels
 
