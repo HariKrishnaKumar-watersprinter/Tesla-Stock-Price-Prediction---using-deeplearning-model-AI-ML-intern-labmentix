@@ -68,11 +68,13 @@ def pred():
         max_date = Data2['Date'].max().date()
         col1, col2 = st.columns(2)
         with col1:
-        # Default start date: 30 days before end date
            start_date = st.date_input("Start Date", value=max_date - timedelta(days=30), min_value=min_date, max_value=max_date)
         with col2:
-        # Prediction will be made FROM this end date
-           end_date = st.date_input("End Date (Prediction starts from here)", value=max_date, min_value=min_date, max_value=max_date)
+           # FIX: Default end_date is set 15 days BEFORE max_date to guarantee 10 future trading days exist in the dataset
+           default_end = max_date - timedelta(days=15)
+           if default_end < min_date:
+               default_end = min_date
+           end_date = st.date_input("End Date (Prediction starts from here)", value=default_end, min_value=min_date, max_value=max_date)
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
         else:
