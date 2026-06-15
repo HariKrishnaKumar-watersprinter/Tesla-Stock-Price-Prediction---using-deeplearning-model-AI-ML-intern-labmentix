@@ -98,6 +98,7 @@ def pred():
                 return
 
             end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
+            data_len = len(Data)
             
             # 3. Extract the specific predictions for 1d, 5d, and 10d ahead
             pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price'] if end_date_idx + 1 < data_len else np.nan
