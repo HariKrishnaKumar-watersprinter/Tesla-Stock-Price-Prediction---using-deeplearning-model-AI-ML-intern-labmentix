@@ -21,17 +21,9 @@ def pred():
     if uploaded_file is not None:
         # Load and process data
         Data = pd.read_csv(uploaded_file)
-        st.subheader("📅 Select Date Range")
+        
         Data['Date'] = pd.to_datetime(Data['Date'], format='%Y-%m-%d')
-        min_date = Data['Date'].min().date()
-        max_date = Data['Date'].max().date()
-        col1, col2 = st.columns(2)
-        with col1:
-        # Default start date: 30 days before end date
-           start_date = st.date_input("Start Date", value=max_date - timedelta(days=30), min_value=min_date, max_value=max_date)
-        with col2:
-        # Prediction will be made FROM this end date
-           end_date = st.date_input("End Date (Prediction starts from here)", value=max_date, min_value=min_date, max_value=max_date)
+        
         Data.set_index('Date', inplace=True)
         Data.sort_index(inplace=True)
         Data['Year'] = Data.index.year
@@ -80,6 +72,26 @@ def pred():
         actual_5d = actual_5d.dropna()  
         actual_10d = Data['Close'].shift(-10)
         actual_10d = actual_10d.dropna()
+        st.subheader("📅 Select Date Range")
+        min_date = Data.index.min().date()
+        max_date = Data.index.max().date()
+        col1, col2 = st.columns(2)
+        with col1:
+        # Default start date: 30 days before end date
+           start_date = st.date_input("Start Date", value=max_date - timedelta(days=30), min_value=min_date, max_value=max_date)
+        with col2:
+        # Prediction will be made FROM this end date
+           end_date = st.date_input("End Date (Prediction starts from here)", value=max_date, min_value=min_date, max_value=max_date)
+        if start_date > end_date:
+        st.error("❌ Error: End Date must fall after Start Date.")
+    else:
+        # Filter data for chart display
+        mask = (Data.index >= pd.to_datetime(start_date)) & (Data.index <= pd.to_datetime(end_date))
+        display_df = Data.index[mask]
+        
+        # Get the row for the selected END DATE to make predictions
+        selected_end_row = df_predict[df_predict['Date'] == pd.to_datetime(end_date)]
+        
         def format_metric(pred, actual):
                 if pd.isna(actual):
                     return f"Predicted: ${pred:.2f}", f"Actual: Future Date"
