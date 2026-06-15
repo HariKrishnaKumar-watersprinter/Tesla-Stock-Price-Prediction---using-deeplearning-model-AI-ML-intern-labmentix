@@ -99,7 +99,6 @@ def pred():
 
             end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
             data_len = len(Data)
-            
             # 3. Extract the specific predictions for 1d, 5d, and 10d ahead
             pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price'] if end_date_idx + 1 < data_len else np.nan
             pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] if end_date_idx + 5 < data_len else np.nan
@@ -118,9 +117,9 @@ def pred():
                 else:
                     err = ((pred - actual)/actual)*100
                     return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
-            p1, a1 = format_metric(pred_1d['Predicted Close price'], actual_1d)
-            p5, a5 = format_metric(pred_5d['Predicted Close price'], actual_5d)
-            p10, a10 = format_metric(pred_10d['Predicted Close price'], actual_10d)
+            p1, a1 = format_metric(pred_1d, actual_1d)
+            p5, a5 = format_metric(pred_5d, actual_5d)
+            p10, a10 = format_metric(pred_10d, actual_10d)
             
             st.subheader("🚀 Future Price Prediction")
             st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
