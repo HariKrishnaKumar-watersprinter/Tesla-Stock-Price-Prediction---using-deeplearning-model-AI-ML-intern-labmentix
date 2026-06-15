@@ -70,15 +70,35 @@ def pred():
         predict=model.predict(single_lstm ) # Changed from 'single' to 'single_lstm'
         print('Predictions:1Day')
         predict=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
-        print(predict.head(10))
         pred_5d = predict['Predicted Close price'].shift(-5)
         pred_5d = pred_5d.dropna()
-        print('Predictions:5 Day')
-        print(pred_5d.head(10))
-        print('Predictions:10 Day')
         pred_10d = predict['Predicted Close price'].shift(-10)
         pred_10d = pred_10d.dropna()
-        print(pred_10d.head(10))
+        actual_1d = Data['Close'].shift(-1)
+        actual_1d = actual_1d.dropna()
+        actual_5d = Data['Close'].shift(-5)
+        actual_5d = actual_5d.dropna()  
+        actual_10d = Data['Close'].shift(-10)
+        actual_10d = actual_10d.dropna()
+        def format_metric(pred, actual):
+                if pd.isna(actual):
+                    return f"Predicted: ${pred:.2f}", f"Actual: Future Date"
+                else:
+                    err = ((pred - actual)/actual)*100
+                    return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
+        p1, a1 = format_metric(pred_1d, actual_1d)
+        p5, a5 = format_metric(pred_5d, actual_5d)
+        p10, a10 = format_metric(pred_10d, actual_10d)
+        
+            
         with st.spinner("Processing data and loading models... Please wait."):
-
             st.subheader("🚀 Future Price Prediction")
+            st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Current Price (End Date)", f"${current_price:.2f}")
+            col2.metric("1-Day Ahead", p1, a1)
+            col3.metric("5-Days Ahead", p5, a5)
+            col4.metric("10-Days Ahead", p10, a10)
+            st.subheader("🚀 Future Price Prediction")
+       
+       
