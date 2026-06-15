@@ -86,21 +86,31 @@ def pred():
         if selected_end_row.empty:
             st.warning("⚠️ The selected End Date is not a trading day (e.g., weekend or holiday). Please select a valid trading day.")
         else:
-            pred_1d=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
-            pred_5d = predict['Predicted Close price'].shift(-5)
-            pred_5d = pred_5d.dropna()
-            pred_10d = predict['Predicted Close price'].shift(-10)
-            pred_10d = pred_10d.dropna()
-            pred_10d = pred_10d
-            actual_1d = Data['Close'].shift(-1)
-            actual_1d = actual_1d.dropna()
-            actual_1d = actual_1d.values[0]
-            actual_5d = Data['Close'].shift(-5)
-            actual_5d = actual_5d.dropna()  
-            actual_5d = actual_5d.values[0]
-            actual_10d = Data['Close'].shift(-10)
-            actual_10d = actual_10d.dropna()
-            actual_10d = actual_10d.values[0]
+             # 1. Create a DataFrame for all 1-day predictions
+            pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
+                                   columns=['Predicted Close price'], 
+                                   index=Data.index)
+            
+            # 2. Get the index position of the selected end date
+            # We use Data.index because that's what we set as the index for pred_df
+            if pd.to_datetime(end_date) not in Data.index:
+                st.warning("⚠️ The selected End Date is not available in the processed dataset (might have been dropped due to NaNs).")
+                return
+
+            end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
+            
+            # 3. Extract the specific predictions for 1d, 5d, and 10d ahead
+            pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price']
+            pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price']
+            pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price']
+            
+            # 4. Extract the actual prices for comparison
+            # Using min() to prevent IndexError if we are near the end of the dataset
+            actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
+            actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < len(Data) else np.nan
+            actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
+            
+            current_price = selected_end_row['Close'].values[0]
             def format_metric(pred, actual):
                 if pd.isna(actual):
                     return f"Predicted: ${pred:.2f}", f"Actual: Future Date"
