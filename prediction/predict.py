@@ -78,7 +78,7 @@ def pred():
         else:
         # Filter data for chart display
             mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
-            display_df = df_predict[mask]
+            display_df = Data2[mask]
         
         
         # Get the row for the selected END DATE to make predictions
