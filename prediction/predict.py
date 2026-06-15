@@ -53,9 +53,9 @@ def pred():
         Data['ATR_14'] = Data['TR'].rolling(window=14).mean()
         Data = Data.dropna()
         possible_col=['Open','MACD','OBV','Volume_Rolling_Mean_20','ATR_14','Volatility_20','Year','Volume_Rolling_Mean_10','Close_Open_Ratio','Volatility_5','Price_Rate_Of_Change_20','Volatility_10','Daily_Return','Daily_Range','Volume_Rolling_Mean_5']
-        Data=Data.reindex(columns=possible_col)
+        Data1 = Data.reindex(columns=possible_col)
         preprocess_pipeline=datascale()[1]
-        single=preprocess_pipeline.transform(Data)
+        single=preprocess_pipeline.transform(Data1)
         single_lstm = single.reshape(single.shape[0],single.shape[1],1)
 
         model_path = os.path.join(os.getcwd(), "model", "LSTM.pkl")
@@ -68,7 +68,7 @@ def pred():
             return # Stop execution if model is not found
             
         predict=model.predict(single_lstm ) # Changed from 'single' to 'single_lstm'
-        print('Predictions:1Day')
+        
         predict=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
         pred_5d = predict['Predicted Close price'].shift(-5)
         pred_5d = pred_5d.dropna()
