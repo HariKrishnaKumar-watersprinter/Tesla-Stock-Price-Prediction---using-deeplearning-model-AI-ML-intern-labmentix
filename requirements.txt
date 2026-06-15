@@ -9,4 +9,5 @@ tensorflow
 keras
 scipy
 statsmodels
+scikeras
 
