@@ -22,6 +22,7 @@ def pred():
         # Load and process data
         Data = pd.read_csv(uploaded_file)
         
+        Data2=Data.copy
         Data['Date'] = pd.to_datetime(Data['Date'], format='%Y-%m-%d')
         
         Data.set_index('Date', inplace=True)
@@ -49,32 +50,22 @@ def pred():
         preprocess_pipeline=datascale()[1]
         single=preprocess_pipeline.transform(Data1)
         single_lstm = single.reshape(single.shape[0],single.shape[1],1)
-
-        model_path = os.path.join(os.getcwd(), "model", "LSTM.pkl")
-        model = None # Initialize model to None
-        if os.path.exists(model_path):
-            model = joblib.load(model_path)
-            st.success("Model loaded successfully.")
-        else:
-            st.error(f"Error: Model file not found at: {model_path}. Please ensure 'LSTM.pkl' exists in the 'model' directory.")
-            return # Stop execution if model is not found
+        with st.spinner("Processing data and loading models... Please wait."):
+            model_path = os.path.join(os.getcwd(), "model", "LSTM.pkl")
+            model = None # Initialize model to None
+            if os.path.exists(model_path):
+                model = joblib.load(model_path)
+                st.success("Model loaded successfully.")
+            else:
+                st.error(f"Error: Model file not found at: {model_path}. Please ensure 'LSTM.pkl' exists in the 'model' directory.")
+                return # Stop execution if model is not found
             
         predict=model.predict(single_lstm ) # Changed from 'single' to 'single_lstm'
         
-        pred_1d=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
-        pred_5d = predict['Predicted Close price'].shift(-5)
-        pred_5d = pred_5d.dropna()
-        pred_10d = predict['Predicted Close price'].shift(-10)
-        pred_10d = pred_10d.dropna()
-        actual_1d = Data['Close'].shift(-1)
-        actual_1d = actual_1d.dropna()
-        actual_5d = Data['Close'].shift(-5)
-        actual_5d = actual_5d.dropna()  
-        actual_10d = Data['Close'].shift(-10)
-        actual_10d = actual_10d.dropna()
+        
         st.subheader("📅 Select Date Range")
-        min_date = Data.index.min().date()
-        max_date = Data.index.max().date()
+        min_date = Data2['Date'].min().date()
+        max_date = Data2['Date'].max().date()
         col1, col2 = st.columns(2)
         with col1:
         # Default start date: 30 days before end date
@@ -83,27 +74,43 @@ def pred():
         # Prediction will be made FROM this end date
            end_date = st.date_input("End Date (Prediction starts from here)", value=max_date, min_value=min_date, max_value=max_date)
         if start_date > end_date:
-        st.error("❌ Error: End Date must fall after Start Date.")
-    else:
+            st.error("❌ Error: End Date must fall after Start Date.")
+        else:
         # Filter data for chart display
-        mask = (Data.index >= pd.to_datetime(start_date)) & (Data.index <= pd.to_datetime(end_date))
-        display_df = Data.index[mask]
+            mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
+            display_df = df_predict[mask]
+        
         
         # Get the row for the selected END DATE to make predictions
-        selected_end_row = df_predict[df_predict['Date'] == pd.to_datetime(end_date)]
-        
-        def format_metric(pred, actual):
+        selected_end_row = Data2[Data2['Date'] == pd.to_datetime(end_date)]
+        if selected_end_row.empty:
+            st.warning("⚠️ The selected End Date is not a trading day (e.g., weekend or holiday). Please select a valid trading day.")
+        else:
+            pred_1d=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
+            pred_5d = predict['Predicted Close price'].shift(-5)
+            pred_5d = pred_5d.dropna()
+            pred_10d = predict['Predicted Close price'].shift(-10)
+            pred_10d = pred_10d.dropna()
+            pred_10d = pred_10d
+            actual_1d = Data['Close'].shift(-1)
+            actual_1d = actual_1d.dropna()
+            actual_1d = actual_1d.values[0]
+            actual_5d = Data['Close'].shift(-5)
+            actual_5d = actual_5d.dropna()  
+            actual_5d = actual_5d.values[0]
+            actual_10d = Data['Close'].shift(-10)
+            actual_10d = actual_10d.dropna()
+            actual_10d = actual_10d.values[0]
+            def format_metric(pred, actual):
                 if pd.isna(actual):
                     return f"Predicted: ${pred:.2f}", f"Actual: Future Date"
                 else:
                     err = ((pred - actual)/actual)*100
                     return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
-        p1, a1 = format_metric(pred_1d, actual_1d)
-        p5, a5 = format_metric(pred_5d, actual_5d)
-        p10, a10 = format_metric(pred_10d, actual_10d)
-        
+            p1, a1 = format_metric(pred_1d, actual_1d)
+            p5, a5 = format_metric(pred_5d, actual_5d)
+            p10, a10 = format_metric(pred_10d, actual_10d)
             
-        with st.spinner("Processing data and loading models... Please wait."):
             st.subheader("🚀 Future Price Prediction")
             st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
             col1, col2, col3, col4 = st.columns(4)
@@ -111,6 +118,6 @@ def pred():
             col2.metric("1-Day Ahead", p1, a1)
             col3.metric("5-Days Ahead", p5, a5)
             col4.metric("10-Days Ahead", p10, a10)
-            st.subheader("🚀 Future Price Prediction")
+            
        
        
