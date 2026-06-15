@@ -69,7 +69,7 @@ def pred():
             
         predict=model.predict(single_lstm ) # Changed from 'single' to 'single_lstm'
         
-        predict=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
+        pred_1d=pd.DataFrame(predict.reshape(-1,1).astype(int), columns=['Predicted Close price'], index=Data.index)
         pred_5d = predict['Predicted Close price'].shift(-5)
         pred_5d = pred_5d.dropna()
         pred_10d = predict['Predicted Close price'].shift(-10)
