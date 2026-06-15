@@ -107,9 +107,9 @@ def pred():
                 else:
                     err = ((pred - actual)/actual)*100
                     return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
-            p1, a1 = format_metric(pred_1d, actual_1d)
-            p5, a5 = format_metric(pred_5d, actual_5d)
-            p10, a10 = format_metric(pred_10d, actual_10d)
+            p1, a1 = format_metric(pred_1d['Predicted Close price'], actual_1d)
+            p5, a5 = format_metric(pred_5d['Predicted Close price'], actual_5d)
+            p10, a10 = format_metric(pred_10d['Predicted Close price'], actual_10d)
             
             st.subheader("🚀 Future Price Prediction")
             st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
