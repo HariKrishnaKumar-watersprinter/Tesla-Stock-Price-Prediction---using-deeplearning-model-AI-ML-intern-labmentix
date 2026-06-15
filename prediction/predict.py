@@ -130,6 +130,67 @@ def pred():
             col2.metric("1-Day Ahead", p1, a1)
             col3.metric("5-Days Ahead", p5, a5)
             col4.metric("10-Days Ahead", p10, a10)
+                        # --- VISUALIZATION ---
+            st.subheader("📊 Historical Chart & Future Forecast Points")
+            
+            fig = go.Figure()
+            
+            # Plot historical close prices for selected range
+            fig.add_trace(go.Scatter(
+                x=display_df['Date'], 
+                y=display_df['Close'], 
+                mode='lines', 
+                name='Historical Close',
+                line=dict(color='royalblue', width=2)
+            ))
+            
+            # Plot prediction markers
+            future_dates = [
+                pd.to_datetime(end_date) + pd.Timedelta(days=1), 
+                pd.to_datetime(end_date) + pd.Timedelta(days=5), 
+                pd.to_datetime(end_date) + pd.Timedelta(days=10)
+            ]
+            future_preds = [pred_1d, pred_5d, pred_10d]
+            
+            fig.add_trace(go.Scatter(
+                x=future_dates, 
+                y=future_preds, 
+                mode='markers+text', 
+                name='Predicted',
+                marker=dict(color='crimson', size=10, symbol='star'),
+                text=[f"1d: ${p:.2f}" for p in future_preds],
+                textposition="top center"
+            ))
+            
+            # If actuals exist, plot them to compare
+            actual_dates = [
+                pd.to_datetime(end_date) + pd.Timedelta(days=1), 
+                pd.to_datetime(end_date) + pd.Timedelta(days=5), 
+                pd.to_datetime(end_date) + pd.Timedelta(days=10)
+            ]
+            actual_vals = [actual_1d, actual_5d, actual_10d]
+            
+            valid_actuals = [(d, v) for d, v in zip(actual_dates, actual_vals) if not pd.isna(v)]
+            if valid_actuals:
+                fig.add_trace(go.Scatter(
+                    x=[d for d,v in valid_actuals], 
+                    y=[v for d,v in valid_actuals], 
+                    mode='markers', 
+                    name='Actual',
+                    marker=dict(color='limegreen', size=10, symbol='circle', line=dict(width=2, color='DarkSlateGrey'))
+                ))
+                
+            fig.update_layout(
+                xaxis_title="Date",
+                yaxis_title="Price (USD)",
+                template="plotly_white",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.info("☝️ Please upload a CSV file to proceed.")
             
        
        
