@@ -22,7 +22,7 @@ def pred():
         # Load and process data
         Data = pd.read_csv(uploaded_file)
         
-        Data2=Data.copy
+        Data2=Data.copy()
         Data['Date'] = pd.to_datetime(Data['Date'], format='%Y-%m-%d')
         
         Data.set_index('Date', inplace=True)
