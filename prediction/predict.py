@@ -1,3 +1,23 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import joblib
+import os
+from datetime import timedelta
+import datetime
+
+# Import your preprocessing
+try:
+    from src.Data_split import datascale
+except ImportError:
+    st.error("Could not import datascale from src.Data_split")
+    st.stop()
+
+def styled_header(title, subtitle=""):
+    st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
+    if subtitle:
+        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
     
