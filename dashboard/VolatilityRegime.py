@@ -22,4 +22,4 @@ def vol_reg(df):
                     color_discrete_sequence=['#F7DC6F'], opacity=0.8)
         fig8.update_traces(texttemplate='%{x:.2f}',textfont_size=50,textposition='auto')
         fig8.update_layout(xaxis_title='Daily Range ($)', yaxis_title='Frequency', template='plotly_dark')
-        st.plotly_chart(fig8, use_container_width=True)
+        st.plotly_chart(fig8, width='stretch')
