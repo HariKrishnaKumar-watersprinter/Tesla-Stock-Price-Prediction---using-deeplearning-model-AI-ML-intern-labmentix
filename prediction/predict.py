@@ -27,9 +27,10 @@ def pred():
     if uploaded_file is not None:
         # ==================== LOAD & PREPROCESS ====================
         Data = pd.read_csv(uploaded_file)
-        Data2 = Data.copy()                     # Original for display
+                         # Original for display
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
+        Data2 = Data.copy()   
         Data = Data.dropna(subset=['Date']).sort_values('Date')
         Data.set_index('Date', inplace=True)
 
