@@ -89,59 +89,57 @@ def pred():
         
         # Get the row for the selected END DATE to make predictions
         selected_end_row = Data2[Data2['Date'] == pd.to_datetime(end_date)]
-        if selected_end_row.empty:
-            st.warning("⚠️ The selected End Date is not a trading day (e.g., weekend or holiday). Please select a valid trading day.")
-        else:
+       
              # 1. Create a DataFrame for all 1-day predictions
-            pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
+        pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
                                    columns=['Predicted Close price'], 
                                    index=Data.index)
             
             # 2. Get the index position of the selected end date
             # We use Data.index because that's what we set as the index for pred_df
-            if pd.to_datetime(end_date) not in Data.index:
+        if pd.to_datetime(end_date) not in Data.index:
                 st.warning("⚠️ The selected End Date is not available in the processed dataset (might have been dropped due to NaNs).")
                 return
 
-            end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
-            data_len = len(Data)
+        end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
+        data_len = len(Data)
             # 3. Extract the specific predictions for 1d, 5d, and 10d ahead
-            pred_1d = pred_df.iloc[end_date_idx + 1 ]['Predicted Close price'] if end_date_idx + 1 < len(Data) else np.nan
-            pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] if end_date_idx + 5 < len(Data) else np.nan
-            pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price'] if end_date_idx + 10 < len(Data) else np.nan
+        pred_1d = pred_df.iloc[end_date_idx + 1 ]['Predicted Close price'] if end_date_idx + 1 < len(Data) else np.nan
+        pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] if end_date_idx + 5 < len(Data) else np.nan
+        pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price'] if end_date_idx + 10 < len(Data) else np.nan
             
             # 4. Extract the actual prices for comparison
             # Using min() to prevent IndexError if we are near the end of the dataset
-            actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
-            actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < len(Data) else np.nan
-            actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
+        actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
+        actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < len(Data) else np.nan
+         actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
             
-            current_price = selected_end_row['Close'].values[0]
-            def format_metric(pred, actual):
+        current_price = selected_end_row['Close'].values[0]
+        def format_metric(pred, actual):
                 if pd.isna(actual):
                     return f"Predicted: ${pred:.2f}", f"Actual: Future Date"
                 else:
                     err = ((pred - actual)/actual)*100
                     return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
-            p1, a1 = format_metric(pred_1d, actual_1d)
-            p5, a5 = format_metric(pred_5d, actual_5d)
-            p10, a10 = format_metric(pred_10d, actual_10d)
+        p1, a1 = format_metric(pred_1d, actual_1d)
+        p5, a5 = format_metric(pred_5d, actual_5d)
+        p10, a10 = format_metric(pred_10d, actual_10d)
             
             
-            st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Current Price (End Date)", f"${current_price:.2f}")
-            col2.metric("1-Day Ahead", p1, a1)
-            col3.metric("5-Days Ahead", p5, a5)
-            col4.metric("10-Days Ahead", p10, a10)
+        st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Current Price (End Date)", f"${current_price:.2f}")
+        col2.metric("1-Day Ahead", p1, a1)
+        col3.metric("5-Days Ahead", p5, a5)
+        col4.metric("10-Days Ahead", p10, a10)
                         # --- VISUALIZATION ---
-            st.subheader("📊 Historical Chart & Future Forecast Points")
-            mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
-            display_df = pred[mask]
-            fig = go.Figure()
+        st.subheader("📊 Historical Chart & Future Forecast Points")
+         mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
+        display_df = pred[mask]
+        fig = go.Figure()
             
             # Plot historical close prices for selected range
-            fig.add_trace(go.Scatter(
+        fig.add_trace(go.Scatter(
                 x=display_df['Date'], 
                 y=display_df['Close'], 
                 mode='lines', 
@@ -150,14 +148,14 @@ def pred():
             ))
             
             # Plot prediction markers
-            future_dates = [
+        future_dates = [
                 pd.to_datetime(end_date) + pd.Timedelta(days=1), 
                 pd.to_datetime(end_date) + pd.Timedelta(days=5), 
                 pd.to_datetime(end_date) + pd.Timedelta(days=10)
             ]
-            future_preds = [pred_1d, pred_5d, pred_10d]
+        future_preds = [pred_1d, pred_5d, pred_10d]
             
-            fig.add_trace(go.Scatter(
+        fig.add_trace(go.Scatter(
                 x=future_dates, 
                 y=future_preds, 
                 mode='markers+text', 
@@ -168,15 +166,15 @@ def pred():
             ))
             
             # If actuals exist, plot them to compare
-            actual_dates = [
+        actual_dates = [
                 pd.to_datetime(end_date) + pd.Timedelta(days=1), 
                 pd.to_datetime(end_date) + pd.Timedelta(days=5), 
                 pd.to_datetime(end_date) + pd.Timedelta(days=10)
             ]
-            actual_vals = [actual_1d, actual_5d, actual_10d]
+        actual_vals = [actual_1d, actual_5d, actual_10d]
             
-            valid_actuals = [(d, v) for d, v in zip(actual_dates, actual_vals) if not pd.isna(v)]
-            if valid_actuals:
+        valid_actuals = [(d, v) for d, v in zip(actual_dates, actual_vals) if not pd.isna(v)]
+        if valid_actuals:
                 fig.add_trace(go.Scatter(
                     x=[d for d,v in valid_actuals], 
                     y=[v for d,v in valid_actuals], 
@@ -185,14 +183,14 @@ def pred():
                     marker=dict(color='limegreen', size=10, symbol='circle', line=dict(width=2, color='DarkSlateGrey'))
                 ))
                 
-            fig.update_layout(
+        fig.update_layout(
                 xaxis_title="Date",
                 yaxis_title="Price (USD)",
                 template="plotly_white",
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
             )
             
-            st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, width='stretch')
 
     else:
         st.info("☝️ Please upload a CSV file to proceed.")
