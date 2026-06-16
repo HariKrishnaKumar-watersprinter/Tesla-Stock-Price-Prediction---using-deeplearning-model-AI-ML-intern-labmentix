@@ -95,14 +95,7 @@ def pred():
         # ---- Safe index lookup ----
         end_ts = pd.to_datetime(end_date)
 
-        if end_ts not in pred_df.index:
-            # Pick the most recent trading day on or before the chosen end_date
-            valid_idx = pred_df.index[pred_df.index <= end_ts]
-            if len(valid_idx) == 0:
-                st.error("❌ Selected end date is before the earliest available trading day.")
-                st.stop()
-            end_ts = valid_idx[-1]
-            st.info(f"ℹ️ {end_date} is not a trading day. Using the closest prior trading day: **{end_ts.date()}**.")
+        
 
         end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
