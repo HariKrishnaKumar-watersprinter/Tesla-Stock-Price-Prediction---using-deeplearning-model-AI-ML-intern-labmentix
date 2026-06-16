@@ -14,7 +14,7 @@ import datetime
 def styled_header(title, subtitle=""):
     st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
     if subtitle:
-        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_html=True)
+        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
 
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
@@ -138,16 +138,15 @@ def pred():
         if base_trade_date.date() != end_date:
             st.info(f"ℹ️ Selected date is not a trading day. Using last available trading day: **{base_trade_date.strftime('%Y-%m-%d')}** as base.")
 
-        end_date_idx = Data.index.get_loc(base_trade_date)
-        data_len = len(Data)
+        end_date_idx = pred_df.index.get_loc(base_trade_date)
+        data_len = len(pred_df)
         
-        # --- FIX: CORRECTED PREDICTION LOGIC ---
+        # Extract the specific predictions for 1d, 5d, and 10d ahead
         # The prediction at row `i` represents the forecasted price 1 day ahead of features at row `i`.
         # Therefore, the 5-day ahead prediction is located at row `i + 4`.
-        # And the 10-day ahead prediction is located at row `i + 9`.
-        pred_1d = pred_df.iloc[end_date_idx]['Predicted Close price'] if end_date_idx < len(pred_df) else np.nan
-        pred_5d = pred_df.iloc[end_date_idx + 4]['Predicted Close price'] if end_date_idx + 4 < len(pred_df) else np.nan
-        pred_10d = pred_df.iloc[end_date_idx + 9]['Predicted Close price'] if end_date_idx + 9 < len(pred_df) else np.nan
+        pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price'] if end_date_idx + 1 < data_len else np.nan
+        pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] if end_date_idx + 5 < data_len else np.nan
+        pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price'] if end_date_idx + 10 < data_len else np.nan
             
         # Extract the actual prices for comparison
         actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
