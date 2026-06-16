@@ -93,11 +93,11 @@ def pred():
             st.stop()
 
         # ---- Safe index lookup ----
-        end_ts = pd.Timestamp(end_date,format='%Y-%m-%d')
+        end_ts = pd.Timestamp(end_date)
 
         # Find nearest available date in dataset
         
-        end_date_idx = pred_df.index.get_loc(end_ts.date())
+        end_date_idx = pred_df.index.get_loc(end_ts.date().strftime('%Y-%m-%d'))
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
