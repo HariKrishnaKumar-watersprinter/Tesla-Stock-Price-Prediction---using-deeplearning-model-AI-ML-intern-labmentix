@@ -20,4 +20,4 @@ def liq_val(df):
     with col4:
         fig15 = px.scatter(df, x='Daily_Return', y='Volume', color='Year', opacity=0.5, color_continuous_scale='Turbo', template='plotly_dark')
         fig15.update_layout(title='Return Anomaly vs. Liquidity', xaxis_title='Daily Return', yaxis_title='Volume')
-        st.plotly_chart(fig15, use_container_width=True)
+        st.plotly_chart(fig15, width='stretch')
