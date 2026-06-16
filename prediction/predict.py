@@ -32,6 +32,7 @@ def pred():
         Data2 = Data.copy()  # Keep original for display
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
+        Data2 = Data.copy()
         Data = Data.dropna(subset=['Date'])
         Data.set_index('Date', inplace=True)
         Data.sort_index(inplace=True)
