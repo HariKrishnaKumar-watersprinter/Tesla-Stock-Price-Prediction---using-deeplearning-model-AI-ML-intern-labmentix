@@ -33,4 +33,4 @@ def tech_trend(df):
     fig13.add_trace(go.Scatter(x=df1.index, y=df1['MA_20'], name='MA 20', line=dict(color='#BB8FCE', width=1.5)))
     fig13.update_layout(title='Close Price with Moving Averages',
                     xaxis_title='Date', yaxis_title='Price ($)', template='plotly_dark')
-    st.plotly_chart(fig13, use_container_width=True)
+    st.plotly_chart(fig13, width='stretch')
