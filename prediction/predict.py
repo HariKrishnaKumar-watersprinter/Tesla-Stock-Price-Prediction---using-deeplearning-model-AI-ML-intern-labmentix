@@ -76,15 +76,12 @@ def pred():
            if default_end < min_date:
                default_end = min_date
            
-           end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date(), min_value=min_date, max_value=max_date)
+           end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date(format='%Y-%m-%d'), min_value=min_date, max_value=max_date)
         
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
             st.stop()
-        else:
-        # Filter data for chart display
-            mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
-            display_df = Data2[mask]
+        
         
         
         # Get the row for the selected END DATE to make predictions
