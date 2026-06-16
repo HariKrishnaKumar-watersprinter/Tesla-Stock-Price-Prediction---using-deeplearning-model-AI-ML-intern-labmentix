@@ -97,7 +97,7 @@ def pred():
 
         # Find nearest available date in dataset
         
-        end_date_idx = pred_df.index.get_loc(end_ts.date().strftime("%Y-%m-%d"))
+        end_date_idx = pred_df.index.get_loc(end_ts.date())
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
