@@ -22,7 +22,7 @@ def pred():
     if uploaded_file is not None:
         # Load and process data
         Data = pd.read_csv(uploaded_file)
-        Data.drop[Data['Close']]
+       
         
         Data['Date'] = pd.to_datetime(Data['Date'], format='%Y-%m-%d')
         Data2=Data.copy()
