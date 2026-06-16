@@ -35,4 +35,4 @@ def macro_price_corr(df):
                 text_auto='.3f',
                  aspect="auto")
         fig16.update_layout(title='Correlation Heatmap', template='plotly_dark')
-        st.plotly_chart(fig16, use_container_width=True)
+        st.plotly_chart(fig16, width='stretch')
