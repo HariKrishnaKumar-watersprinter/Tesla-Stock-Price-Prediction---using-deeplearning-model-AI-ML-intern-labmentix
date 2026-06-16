@@ -46,10 +46,7 @@ def pred():
         Data['ATR_14'] = Data['TR'].rolling(window=14).mean()
         Data = Data.dropna()
 
-        possible_col = ['Open','MACD','OBV','Volume_Rolling_Mean_20','ATR_14','Volatility_20',
-                        'Year','Volume_Rolling_Mean_10','Close_Open_Ratio','Volatility_5',
-                        'Price_Rate_Of_Change_20','Volatility_10','Daily_Return','Daily_Range',
-                        'Volume_Rolling_Mean_5']
+        possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
         Data1 = Data.reindex(columns=possible_col)
 
         preprocess_pipeline = datascale()[1]
