@@ -112,7 +112,7 @@ def pred():
             # Using min() to prevent IndexError if we are near the end of the dataset
         actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
         actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < len(Data) else np.nan
-         actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
+        actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
             
         current_price = selected_end_row['Close'].values[0]
         def format_metric(pred, actual):
