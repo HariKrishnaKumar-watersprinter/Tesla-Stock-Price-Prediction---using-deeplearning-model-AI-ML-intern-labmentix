@@ -136,19 +136,37 @@ streamlit run app.py
 ```text
 tsla-quant-predictor/
 │
-├── app.py                     # Main Streamlit application script
-├── app_core.py                # Core caching functions & DL model architectures
+├── app.py                     # Main Streamlit application script             
 ├── requirements.txt           # Python dependencies
 ├── README.md                  # Project documentation
 │
 ├── models/                    # Directory for saved deep learning models
-│   ├── LSTM_Tuned_h1.h5
-│   └── Transformer_Baseline_h5.h5
+│   ├── LSTM.h5
 │
-├── scalers/                   # Saved MinMaxScaler objects
-│   ├── feature_scaler.pkl
-│   └── target_scaler.pkl
-│
+├── data/
+│   ├── TSLA.csv
+|
+├── prediction/
+│   ├── predict.py
+|
+├── Dashboard/                   # Saved MinMaxScaler objects
+│   ├── Intra_Day_Price.py
+│   └── Liquidity_Valuation.py
+│   └── Macro_Price.py
+│   └── Price_Action.py
+│   └── Spatial_MultiDimensional.py
+│   └── Statistical_Distribution.py
+│   └── Technical_trend.py
+│   └── VolatilityRegime.py
+│   └── temporal_Seasonal.py
+|
+├── src/
+│   ├── Data_split.py
+│   └── data_loader.py
+│   └── data_quality.py
+│   └── Price_Action.py
+│   └── feature_engineering.py
+|
 └── assets/                    # Images/GIFs for README
 ```
 
@@ -163,10 +181,19 @@ tsla-quant-predictor/
 
 ---
 
-## 📜 License
+## 🎤 Author
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**Hari Krishna Kumar -AI,ML,Data Science & Analytics Enthusiast**
 
+---
+## 📬 Contact
+
+For collaboration or queries:
+
+* LinkedIn: *[www.linkedin.com/in/hari-668364112]*
+* Email: *[harikrishnakumar368@gmail.com]*
+
+---
 ---
 <p align="center">
   Built with ❤️ and Quantitative Rigor
