@@ -21,5 +21,5 @@ def intra_day(df):
                    color='Year', opacity=0.6, color_continuous_scale='Plasma',
                    trendline='ols')
         fig10.update_layout(xaxis_title='Low Price ($)', yaxis_title='High Price ($)', template='plotly_dark')
-        st.plotly_chart(fig10, use_container_width=True)
+        st.plotly_chart(fig10, width='stretch')
         
