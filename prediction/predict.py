@@ -95,9 +95,15 @@ def pred():
         # ---- Safe index lookup ----
         end_ts = pd.Timestamp(end_date)
 
-        # Find nearest available date in dataset
-        
-        end_date_idx = pred_df.index.get_loc(end_ts.date().strftime('%Y-%m-%d'))
+        if end_ts not in pred_df.index:
+            available_dates = pred_df.index[pred_df.index <= end_ts]
+            if len(available_dates) == 0:
+                st.error("Selected date is not available in dataset.")
+                st.stop()
+
+            end_ts = available_dates[-1]
+
+        end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
