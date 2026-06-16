@@ -1,3 +1,20 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+import plotly.graph_objects as go
+import joblib
+import os
+from datetime import timedelta
+from src.Data_split import datascale
+import numpy as np
+import datetime
+def styled_header(title, subtitle=""):
+    st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
+    if subtitle:
+        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
+
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
     uploaded_file = st.file_uploader("Upload your TSLA.csv file", type=["csv", 'xlsm'])
