@@ -95,7 +95,10 @@ def pred():
         # ---- Safe index lookup ----
         end_ts = pd.to_datetime(end_date)
 
-        
+# Find nearest available date in dataset
+        if end_ts not in pred_df.index:
+        nearest_idx = pred_df.index.get_indexer([end_ts], method='nearest')[0]
+        end_ts = pred_df.index[nearest_idx]
 
         end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
