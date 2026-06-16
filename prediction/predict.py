@@ -136,7 +136,8 @@ def pred():
             col4.metric("10-Days Ahead", p10, a10)
                         # --- VISUALIZATION ---
             st.subheader("📊 Historical Chart & Future Forecast Points")
-            
+            mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(end_date))
+            display_df = pred[mask]
             fig = go.Figure()
             
             # Plot historical close prices for selected range
