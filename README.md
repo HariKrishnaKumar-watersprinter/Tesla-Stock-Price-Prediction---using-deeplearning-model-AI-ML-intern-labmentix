@@ -1,5 +1,5 @@
 # ⌛ TSLA Quantitative Research Desk | Deep Learning Stock Predictor
-Deployed link :https://tesla-stock-predict.streamlit.app/
+Deployed link : https://tesla-stock-predict.streamlit.app/
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12%2B-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)
