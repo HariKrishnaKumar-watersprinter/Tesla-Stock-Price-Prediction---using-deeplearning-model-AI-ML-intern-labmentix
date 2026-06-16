@@ -28,4 +28,4 @@ def multi(df):
                           color_continuous_scale='mint', height=800)
     fig19.update_traces(diagonal_visible=True, showupperhalf=False)
     fig19.update_layout(template='plotly_dark')
-    st.plotly_chart(fig19, use_container_width=True)
+    st.plotly_chart(fig19, width='stretch')
