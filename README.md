@@ -194,7 +194,6 @@ For collaboration or queries:
 * Email: *[harikrishnakumar368@gmail.com]*
 
 ---
----
 <p align="center">
   Built with ❤️ and Quantitative Rigor
 </p>
