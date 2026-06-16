@@ -32,4 +32,4 @@ def price(df):
                color_discrete_sequence=["#250BBB"])
 
         fig4.update_layout(xaxis_title='Years', yaxis_title='Low Price ($)', template='plotly_dark')
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(fig4, width='stretch')
