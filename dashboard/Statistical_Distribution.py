@@ -25,4 +25,4 @@ def stat(df):
 
         fig4.update_layout(title='Distribution of Daily Returns',
                    xaxis_title='Daily Return', yaxis_title='Frequency', template='plotly_dark')
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(fig4, width='stretch')
