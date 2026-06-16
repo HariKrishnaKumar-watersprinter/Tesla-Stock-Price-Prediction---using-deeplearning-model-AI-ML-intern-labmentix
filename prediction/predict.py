@@ -108,7 +108,7 @@ def pred():
 
         # ---- Extract 1d / 5d / 10d predictions & actuals ----
         def safe_get(df_or_series, pos):
-            err = ((pred - actual) / actual) * 100
+            
             return df_or_series.iloc[pos] if 0 <= pos < len(df_or_series) else np.nan
 
         pred_1d   = safe_get(pred_df['Predicted Close price'], end_date_idx + 1)
@@ -123,7 +123,7 @@ def pred():
         current_price = Data['Close'].iloc[end_date_idx]
 
         def format_metric(pred, actual):
-            
+            err = ((pred - actual) / actual) * 100
             return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
 
         p1, a1   = format_metric(pred_1d,  actual_1d)
