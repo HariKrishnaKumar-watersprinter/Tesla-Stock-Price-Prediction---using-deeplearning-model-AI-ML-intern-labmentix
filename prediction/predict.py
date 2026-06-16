@@ -1,24 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-import joblib
-import os
-from datetime import timedelta
-import datetime
-
-# Import your preprocessing
-try:
-    from src.Data_split import datascale
-except ImportError:
-    st.error("Could not import datascale from src.Data_split")
-    st.stop()
-
-def styled_header(title, subtitle=""):
-    st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
-    if subtitle:
-        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
-
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
     
@@ -27,14 +6,13 @@ def pred():
     if uploaded_file is not None:
         # ==================== LOAD & PREPROCESS ====================
         Data = pd.read_csv(uploaded_file)
-                         # Original for display
+        Data2 = Data.copy()                     # Original for display
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
-        Data2 = Data.copy()   
         Data = Data.dropna(subset=['Date']).sort_values('Date')
         Data.set_index('Date', inplace=True)
 
-        # Feature Engineering (same as before)
+        # Feature Engineering
         Data['Year'] = Data.index.year
         Data['Daily_Return'] = Data['Close'].pct_change()
         Data['Daily_Range'] = Data['High'] - Data['Low']
@@ -76,51 +54,46 @@ def pred():
         with st.spinner("Generating predictions..."):
             historical_preds = model.predict(X_lstm).flatten()
 
-        # ==================== DATE SELECTION ====================
+        # ==================== DATE SELECTION & VALIDATION ====================
         min_date = Data2['Date'].min().date()
-        max_date = Data2['Date'].max().date()
+        max_date = Data2['Date'].max().date()   # Last date in uploaded file
 
         col1, col2 = st.columns(2)
         with col1:
             start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
         with col2:
-            end_date = st.date_input("Prediction Start Date", 
-                                   value=max_date, 
-                                   min_value=min_date, max_value=max_date)
+            selected_date = st.date_input("Prediction Start Date", 
+                                        value=max_date, 
+                                        min_value=min_date, max_value=datetime.date.today() + timedelta(days=30))
 
-        if start_date > end_date:
-            st.error("Start Date cannot be after Prediction Start Date.")
-            st.stop()
-
-        end_dt = pd.to_datetime(end_date)
+        # Handle future or invalid selected date
+        end_dt = pd.to_datetime(selected_date)
         if end_dt not in Data.index:
-            st.error("Selected date not available in processed data.")
-            st.stop()
+            end_dt = Data.index.max()   # Use the latest available date
+            st.warning(f"⚠️ Selected date **{selected_date}** is not available in your data. "
+                      f"Using the latest available date: **{end_dt.date()}**")
 
         current_price = Data.loc[end_dt, 'Close']
         end_idx = Data.index.get_loc(end_dt)
 
-        # ==================== FUTURE PREDICTIONS ====================
+        # ==================== FUTURE PREDICTIONS (Iterative) ====================
         def predict_future_steps(start_idx, steps):
-            """Iteratively predict multiple days ahead"""
             current_features = X_scaled[start_idx].copy().reshape(1, -1)
             predictions = []
             
             for _ in range(steps):
                 pred = model.predict(current_features.reshape(1, current_features.shape[1], 1))[0][0]
                 predictions.append(pred)
-                
-                # Simple update: replace Close-related features (approximation)
-                current_features[0, 0] = pred          # Assuming first column after scaling is Open or Close related
-                # Note: For better accuracy, you should update rolling features properly
+                # Update Close (simple approximation)
+                current_features[0, 0] = pred   # Adjust index if 'Close' is not first feature after scaling
             return predictions
 
         pred_1d = predict_future_steps(end_idx, 1)[0]
         pred_5d = predict_future_steps(end_idx, 5)[-1]
         pred_10d = predict_future_steps(end_idx, 10)[-1]
 
-        # ==================== DISPLAY METRICS ====================
-        st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
+        # ==================== METRICS ====================
+        st.subheader(f"🚀 Prediction from {end_dt.date()}")
 
         col1, col2, col3, col4 = st.columns(4)
         col1.metric("Current Price", f"${current_price:.2f}")
@@ -132,7 +105,6 @@ def pred():
         st.subheader("📊 Historical + Future Forecast")
         fig = go.Figure()
 
-        # Historical data
         mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= end_dt)
         hist_df = Data2[mask]
 
@@ -142,7 +114,6 @@ def pred():
             line=dict(color='royalblue', width=2)
         ))
 
-        # Future prediction points
         future_dates = [
             end_dt + timedelta(days=1),
             end_dt + timedelta(days=5),
