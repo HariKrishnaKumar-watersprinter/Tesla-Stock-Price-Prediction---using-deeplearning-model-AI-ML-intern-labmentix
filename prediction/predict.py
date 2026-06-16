@@ -93,7 +93,7 @@ def pred():
             st.stop()
 
         # ---- Safe index lookup ----
-        end_ts = pd.pd.Timestamp(end_date)
+        end_ts = pd.Timestamp(end_date)
 
         # Find nearest available date in dataset
         
