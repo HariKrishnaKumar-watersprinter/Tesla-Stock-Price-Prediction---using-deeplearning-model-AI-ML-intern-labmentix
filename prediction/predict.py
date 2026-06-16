@@ -103,9 +103,9 @@ def pred():
             end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
             data_len = len(Data)
             # 3. Extract the specific predictions for 1d, 5d, and 10d ahead
-            pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price'] #if end_date_idx + 1 < data_len else np.nan
-            pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] #if end_date_idx + 5 < data_len else np.nan
-            pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price'] #if end_date_idx + 10 < data_len else np.nan
+            pred_1d = pred_df.iloc[end_date_idx + 1]['Predicted Close price'] if end_date_idx + 1 < len(Data) else np.nan
+            pred_5d = pred_df.iloc[end_date_idx + 5]['Predicted Close price'] if end_date_idx + 5 < len(Data) else np.nan
+            pred_10d = pred_df.iloc[end_date_idx + 10]['Predicted Close price'] if end_date_idx + 10 < len(Data) else np.nan
             
             # 4. Extract the actual prices for comparison
             # Using min() to prevent IndexError if we are near the end of the dataset
