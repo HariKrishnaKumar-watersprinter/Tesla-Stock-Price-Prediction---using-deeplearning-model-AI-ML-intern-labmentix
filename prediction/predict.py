@@ -91,8 +91,7 @@ def pred():
                                columns=['Predicted Close price'], 
                                index=Data.index)
             
-        # FIX: Find the closest valid trading day on or before the selected end_date
-        # This prevents the KeyError if the user selects a weekend, holiday, or future date
+        # Find the closest valid trading day on or before the selected end_date
         valid_dates = Data.index[Data.index <= pd.to_datetime(end_date)]
         
         if valid_dates.empty:
@@ -101,7 +100,6 @@ def pred():
             
         base_trade_date = valid_dates[-1]
         
-        # Notify the user if their chosen date was adjusted to a prior trading day
         if base_trade_date.date() != end_date:
             st.info(f"ℹ️ Selected date is not a trading day. Using last available trading day: **{base_trade_date.strftime('%Y-%m-%d')}** as base.")
 
@@ -145,7 +143,7 @@ def pred():
         # --- VISUALIZATION ---
         st.subheader("📊 Historical Chart & Future Forecast Points")
         
-        # FIX: Filter the DataFrame properly for the chart display
+        # Filter the DataFrame properly for the chart display
         mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= pd.to_datetime(base_trade_date))
         display_df = Data2[mask]
         
@@ -160,7 +158,7 @@ def pred():
             line=dict(color='royalblue', width=2)
         ))
             
-        # FIX: Use Business Days (BDay) to skip weekends for future dates
+        # Use Business Days (BDay) to skip weekends for future dates
         future_dates = [
             base_trade_date + pd.tseries.offsets.BDay(1), 
             base_trade_date + pd.tseries.offsets.BDay(5), 
@@ -209,7 +207,7 @@ def pred():
                 marker=dict(color='limegreen', size=10, symbol='circle', line=dict(width=2, color='DarkSlateGrey'))
             ))
                 
-        # FIX: Explicitly set x-axis range so future prediction markers are not cut off
+        # Explicitly set x-axis range so future prediction markers are not cut off
         all_chart_dates = list(display_df['Date']) + [d for d, p in valid_future] + [d for d, v in valid_actuals]
         if all_chart_dates:
             min_chart_date = min(all_chart_dates) - timedelta(days=1)
