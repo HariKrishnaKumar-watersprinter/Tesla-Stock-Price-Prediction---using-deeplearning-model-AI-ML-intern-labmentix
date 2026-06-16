@@ -4,8 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import joblib
 import os
-from datetime import timedelta
-import datetime
+from datetime import timedelta, date
 
 # Import your preprocessing
 try:
@@ -18,6 +17,7 @@ def styled_header(title, subtitle=""):
     st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
     if subtitle:
         st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
+
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
     
@@ -26,10 +26,9 @@ def pred():
     if uploaded_file is not None:
         # ==================== LOAD & PREPROCESS ====================
         Data = pd.read_csv(uploaded_file)
-                           # Original for display
+        Data2 = Data.copy()                     # Original for display
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
-        Data2 = Data.copy()  
         Data = Data.dropna(subset=['Date']).sort_values('Date')
         Data.set_index('Date', inplace=True)
 
@@ -71,33 +70,38 @@ def pred():
             st.stop()
         model = joblib.load(model_path)
 
-        # Historical predictions
-        with st.spinner("Generating predictions..."):
-            historical_preds = model.predict(X_lstm).flatten()
-
-        # ==================== DATE SELECTION & VALIDATION ====================
+        # ==================== DATE SELECTION ====================
         min_date = Data2['Date'].min().date()
-        max_date = Data2['Date'].max().date()   # Last date in uploaded file
+        last_data_date = Data.index.max().date()
+        today = date.today()
+        max_picker_date = today + timedelta(days=30)   # Allow selecting up to 30 days in future
 
         col1, col2 = st.columns(2)
         with col1:
-            start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
-        with col2:
-            selected_date = st.date_input("Prediction Start Date", 
-                                        value=max_date, 
-                                        min_value=min_date, max_value=datetime.date.today() + timedelta(days=30))
+            start_date = st.date_input("Start Date", 
+                                       value=min_date, 
+                                       min_value=min_date, 
+                                       max_value=last_data_date)
 
-        # Handle future or invalid selected date
+        with col2:
+            # Safe default: use last date in data or today (whichever is earlier)
+            default_date = min(last_data_date, today)
+            selected_date = st.date_input("Prediction Start Date", 
+                                          value=default_date,
+                                          min_value=min_date, 
+                                          max_value=max_picker_date)
+
+        # Handle selected date (could be future)
         end_dt = pd.to_datetime(selected_date)
         if end_dt not in Data.index:
-            end_dt = Data.index.max()   # Use the latest available date
-            st.warning(f"⚠️ Selected date **{selected_date}** is not available in your data. "
-                      f"Using the latest available date: **{end_dt.date()}**")
+            end_dt = Data.index.max()  # Fallback to latest available date
+            st.warning(f"⚠️ Selected date **{selected_date}** is not in your uploaded data. "
+                      f"Using the latest available date: **{end_dt.date()}** for prediction.")
 
         current_price = Data.loc[end_dt, 'Close']
         end_idx = Data.index.get_loc(end_dt)
 
-        # ==================== FUTURE PREDICTIONS (Iterative) ====================
+        # ==================== FUTURE PREDICTIONS ====================
         def predict_future_steps(start_idx, steps):
             current_features = X_scaled[start_idx].copy().reshape(1, -1)
             predictions = []
@@ -105,8 +109,8 @@ def pred():
             for _ in range(steps):
                 pred = model.predict(current_features.reshape(1, current_features.shape[1], 1))[0][0]
                 predictions.append(pred)
-                # Update Close (simple approximation)
-                current_features[0, 0] = pred   # Adjust index if 'Close' is not first feature after scaling
+                # Simple update (you can improve this later)
+                current_features[0, 0] = pred  
             return predictions
 
         pred_1d = predict_future_steps(end_idx, 1)[0]
