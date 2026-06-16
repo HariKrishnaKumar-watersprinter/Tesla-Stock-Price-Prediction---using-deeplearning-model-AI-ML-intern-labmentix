@@ -108,6 +108,7 @@ def pred():
 
         # ---- Extract 1d / 5d / 10d predictions & actuals ----
         def safe_get(df_or_series, pos):
+            err = ((pred - actual) / actual) * 100
             return df_or_series.iloc[pos] if 0 <= pos < len(df_or_series) else np.nan
 
         pred_1d   = safe_get(pred_df['Predicted Close price'], end_date_idx + 1)
