@@ -9,6 +9,7 @@ import os
 from datetime import timedelta
 from src.Data_split import datascale
 import numpy as np
+import datetime
 def styled_header(title, subtitle=""):
     st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
     if subtitle:
@@ -74,7 +75,7 @@ def pred():
            default_end =  start_date + timedelta(days=30)
            if default_end < min_date:
                default_end = min_date
-               end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date(), min_value=min_date, max_value=max_date)
+           end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date(), min_value=min_date, max_value=max_date)
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
         else:
