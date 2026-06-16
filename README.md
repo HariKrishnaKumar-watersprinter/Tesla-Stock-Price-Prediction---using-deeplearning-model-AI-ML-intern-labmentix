@@ -127,10 +127,6 @@ To launch the interactive Streamlit dashboard, run the following command in your
 streamlit run app.py
 ```
 
-*Note: If you do not upload a `TSLA.csv` file, the application will automatically generate mathematical mock data so you can explore the dashboard's functionality.*
-
----
-
 ## 📁 Project Structure
 
 ```text
