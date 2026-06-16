@@ -123,7 +123,7 @@ def pred():
             p5, a5 = format_metric(pred_5d, actual_5d)
             p10, a10 = format_metric(pred_10d, actual_10d)
             
-            st.subheader("🚀 Future Price Prediction")
+            
             st.subheader(f"🚀 Prediction from {end_date.strftime('%Y-%m-%d')}")
             col1, col2, col3, col4 = st.columns(4)
             col1.metric("Current Price (End Date)", f"${current_price:.2f}")
