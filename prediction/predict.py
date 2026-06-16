@@ -94,9 +94,7 @@ def pred():
             
             # 2. Get the index position of the selected end date
             # We use Data.index because that's what we set as the index for pred_df
-        if end_date not in Data.index:
-                st.warning("⚠️ The selected End Date is not available in the processed dataset (might have been dropped due to NaNs).")
-                return
+        
 
         end_date_idx = Data.index.get_loc(pd.to_datetime(end_date))
         data_len = len(Data)
