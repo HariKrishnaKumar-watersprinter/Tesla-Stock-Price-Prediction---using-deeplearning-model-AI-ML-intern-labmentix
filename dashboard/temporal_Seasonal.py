@@ -22,4 +22,4 @@ def temp_sea(df):
               color='Year', color_discrete_sequence=px.colors.qualitative.Vivid)
         fig6.update_layout(xaxis_title='Year', yaxis_title='Volume', template='plotly_dark',
                    showlegend=False)
-        st.plotly_chart(fig6, use_container_width=True)
+        st.plotly_chart(fig6, width='stretch')
