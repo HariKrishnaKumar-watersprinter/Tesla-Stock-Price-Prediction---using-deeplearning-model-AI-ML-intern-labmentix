@@ -17,6 +17,16 @@ def styled_header(title, subtitle=""):
     if subtitle:
         st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
 
+def next_trading_day(current_date, days_ahead):
+    """Get approximate next trading day (skips weekends)"""
+    dt = pd.to_datetime(current_date)
+    count = 0
+    while count < days_ahead:
+        dt += timedelta(days=1)
+        if dt.weekday() < 5:  # Monday=0 ... Friday=4
+            count += 1
+    return dt
+
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
     
@@ -28,11 +38,10 @@ def pred():
         Data2 = Data.copy()
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
-        Data2 = Data.copy()
         Data = Data.dropna(subset=['Date']).sort_values('Date')
         Data.set_index('Date', inplace=True)
 
-        # Feature Engineering
+        # Feature Engineering (same as before)
         Data['Year'] = Data.index.year
         Data['Daily_Return'] = Data['Close'].pct_change()
         Data['Daily_Range'] = Data['High'] - Data['Low']
@@ -97,10 +106,6 @@ def pred():
 
         # ==================== SAFE MULTI-STEP PREDICTION ====================
         def predict_future_steps(start_idx, steps):
-            """Safe iterative prediction with bounds checking"""
-            if start_idx >= len(Data):
-                return [Data['Close'].iloc[-1]] * steps  # fallback
-
             current_row = Data.iloc[start_idx].copy()
             current_features = X_scaled[start_idx].copy().reshape(1, -1)
             predictions = []
@@ -109,11 +114,9 @@ def pred():
                 pred = model.predict(current_features.reshape(1, current_features.shape[1], 1))[0][0]
                 predictions.append(pred)
                 
-                # Safe feature updates
                 current_row['Close'] = pred
-                current_row['Open'] = pred if step == 1 else current_row['Close']  # assume open ≈ prev close
+                current_row['Open'] = pred if step == 1 else current_row.get('Close', pred)
                 
-                # Safe historical reference
                 prev_idx = min(start_idx + step - 1, len(Data) - 1)
                 prev_close = Data['Close'].iloc[prev_idx]
                 
@@ -121,12 +124,10 @@ def pred():
                 current_row['Close_Open_Ratio'] = pred / current_row['Open']
                 current_row['Daily_Range'] = current_row.get('Daily_Range', pred * 0.02)
                 
-                # Keep rolling features stable (prevent drift)
                 for col in ['Volatility_5', 'Volatility_10', 'Volatility_20']:
                     if col in current_row:
                         current_row[col] = Data[col].iloc[prev_idx]
                 
-                # Re-transform
                 updated_df = pd.DataFrame([current_row[possible_col]])
                 current_features = preprocess_pipeline.transform(updated_df)
             
@@ -145,7 +146,7 @@ def pred():
         col3.metric("5-Days Ahead", f"${pred_5d:.2f}")
         col4.metric("10-Days Ahead", f"${pred_10d:.2f}")
 
-        # ==================== CHART ====================
+        # ==================== CHART WITH PROPER TRADING DATES ====================
         st.subheader("📊 Historical + Future Forecast")
         fig = go.Figure()
 
@@ -156,7 +157,12 @@ def pred():
                                  mode='lines', name='Historical Close',
                                  line=dict(color='royalblue', width=2)))
 
-        future_dates = [end_dt + timedelta(days=d) for d in [1, 5, 10]]
+        # Proper trading day dates
+        future_dates = [
+            next_trading_day(end_dt, 1),
+            next_trading_day(end_dt, 5),
+            next_trading_day(end_dt, 10)
+        ]
         future_prices = [pred_1d, pred_5d, pred_10d]
 
         fig.add_trace(go.Scatter(
@@ -168,8 +174,10 @@ def pred():
         ))
 
         fig.update_layout(
-            xaxis_title="Date", yaxis_title="Price (USD)",
-            template="plotly_white", hovermode="x unified",
+            xaxis_title="Date", 
+            yaxis_title="Price (USD)",
+            template="plotly_white", 
+            hovermode="x unified",
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
 
