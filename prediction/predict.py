@@ -14,7 +14,7 @@ import datetime
 def styled_header(title, subtitle=""):
     st.markdown(f'<div class="quant-header">{title}</div>', unsafe_allow_html=True)
     if subtitle:
-        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="quant-subheader">{subtitle}</div>', unsafe_html=True)
 
 def pred():  
     styled_header("📈 TSLA Stock Closing Price Predictor (1, 5, 10 Days)")
@@ -65,11 +65,51 @@ def pred():
                 st.error(f"Error: Model file not found at: {model_path}. Please ensure 'LSTM.pkl' exists in the 'model' directory.")
                 st.stop()
             
-        predict = model.predict(single_lstm)
+        # --- FIX: EXTEND DATA INTO THE FUTURE UP TO 2026-06-12 ---
+        target_future_date = pd.to_datetime('2026-06-12')
+        last_date_in_data = Data.index.max()
         
+        # Generate business days up to the target date
+        if last_date_in_data < target_future_date:
+            future_dates = pd.bdate_range(start=last_date_in_data + pd.Timedelta(days=1), end=target_future_date)
+            
+            # Carry forward the last known technical indicators to estimate future features
+            last_known = Data1.iloc[-1]
+            future_features = pd.DataFrame(index=future_dates, columns=possible_col)
+            
+            for col in possible_col:
+                if col == 'Open':
+                    # Assume the stock opens at the previous day's close
+                    future_features[col] = Data['Close'].iloc[-1]
+                elif col == 'Year':
+                    future_features[col] = future_dates.year
+                else:
+                    # Carry forward the last known technical indicator
+                    future_features[col] = last_known[col]
+                    
+            # Append future features to historical features
+            extended_Data1 = pd.concat([Data1, future_features])
+            extended_single = preprocess_pipeline.transform(extended_Data1)
+            extended_single_lstm = extended_single.reshape(extended_single.shape[0], extended_single.shape[1], 1)
+            
+            # Predict on the extended dataset
+            predict = model.predict(extended_single_lstm)
+            
+            # Create prediction DataFrame using the extended index
+            pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
+                                   columns=['Predicted Close price'], 
+                                   index=extended_Data1.index)
+        else:
+            # If the data already goes beyond 2026-06-12, just predict normally
+            predict = model.predict(single_lstm)
+            pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
+                                   columns=['Predicted Close price'], 
+                                   index=Data.index)
+            
+        # --- USER INTERFACE ---
         st.subheader("📅 Select Date Range")
         min_date = Data2['Date'].min().date()
-        max_date = Data2['Date'].max().date()
+        max_date = target_future_date.date() # Allow date picker to go up to 2026-06-12
         
         col1, col2 = st.columns(2)
         with col1:
@@ -86,11 +126,6 @@ def pred():
             st.error("❌ Error: End Date must fall after Start Date.")
             st.stop()
 
-        # 1. Create a DataFrame for all predictions aligned with the processed Data index
-        pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
-                               columns=['Predicted Close price'], 
-                               index=Data.index)
-            
         # Find the closest valid trading day on or before the selected end_date
         valid_dates = Data.index[Data.index <= pd.to_datetime(end_date)]
         
@@ -106,17 +141,18 @@ def pred():
         end_date_idx = Data.index.get_loc(base_trade_date)
         data_len = len(Data)
         
-        # 2. Extract the specific predictions for 1d, 5d, and 10d ahead
+        # --- FIX: CORRECTED PREDICTION LOGIC ---
         # The prediction at row `i` represents the forecasted price 1 day ahead of features at row `i`.
         # Therefore, the 5-day ahead prediction is located at row `i + 4`.
-        pred_1d = pred_df.iloc[end_date_idx]['Predicted Close price'] if end_date_idx < data_len else np.nan
-        pred_5d = pred_df.iloc[end_date_idx + 4]['Predicted Close price'] if end_date_idx + 4 < data_len else np.nan
-        pred_10d = pred_df.iloc[end_date_idx + 9]['Predicted Close price'] if end_date_idx + 9 < data_len else np.nan
+        # And the 10-day ahead prediction is located at row `i + 9`.
+        pred_1d = pred_df.iloc[end_date_idx]['Predicted Close price'] if end_date_idx < len(pred_df) else np.nan
+        pred_5d = pred_df.iloc[end_date_idx + 4]['Predicted Close price'] if end_date_idx + 4 < len(pred_df) else np.nan
+        pred_10d = pred_df.iloc[end_date_idx + 9]['Predicted Close price'] if end_date_idx + 9 < len(pred_df) else np.nan
             
-        # 3. Extract the actual prices for comparison
-        actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < data_len else np.nan
-        actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < data_len else np.nan
-        actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < data_len else np.nan
+        # Extract the actual prices for comparison
+        actual_1d = Data['Close'].iloc[end_date_idx + 1] if end_date_idx + 1 < len(Data) else np.nan
+        actual_5d = Data['Close'].iloc[end_date_idx + 5] if end_date_idx + 5 < len(Data) else np.nan
+        actual_10d = Data['Close'].iloc[end_date_idx + 10] if end_date_idx + 10 < len(Data) else np.nan
             
         current_price = Data['Close'].iloc[end_date_idx]
         
