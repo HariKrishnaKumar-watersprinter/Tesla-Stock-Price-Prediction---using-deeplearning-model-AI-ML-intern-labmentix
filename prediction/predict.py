@@ -122,11 +122,7 @@ def pred():
         current_price = Data['Close'].iloc[end_date_idx]
 
         def format_metric(pred, actual):
-            if pd.isna(pred):
-                return "Predicted: N/A", "Actual: N/A"
-            if pd.isna(actual):
-                return f"Predicted: ${pred:.2f}", "Actual: Future Date"
-            err = ((pred - actual) / actual) * 100
+            
             return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
 
         p1, a1   = format_metric(pred_1d,  actual_1d)
