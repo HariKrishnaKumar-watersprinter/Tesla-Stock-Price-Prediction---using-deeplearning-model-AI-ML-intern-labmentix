@@ -76,7 +76,7 @@ def pred():
            if default_end < min_date:
                default_end = min_date
            
-          end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date().strftime("%Y-%m-%d"), min_value=min_date, max_value=max_date)
+          end_date = st.date_input("End Date (Prediction starts from here)", value=datetime.datetime.now().date(), min_value=min_date, max_value=max_date)
         
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
@@ -85,7 +85,7 @@ def pred():
         
         
         # Get the row for the selected END DATE to make predictions
-        selected_end_row = Data2[Data2['Date'] == pd.to_datetime(end_date)]
+        selected_end_row = Data2[Data2['Date'] == pd.to_datetime(end_date.strftime("%Y-%m-%d"))]
        
              # 1. Create a DataFrame for all 1-day predictions
         pred_df = pd.DataFrame(predict.reshape(-1,1).astype(int), 
