@@ -95,33 +95,38 @@ def pred():
         current_price = Data.loc[end_dt, 'Close']
         end_idx = Data.index.get_loc(end_dt)
 
-        # ==================== IMPROVED MULTI-STEP PREDICTION ====================
+        # ==================== SAFE MULTI-STEP PREDICTION ====================
         def predict_future_steps(start_idx, steps):
-            """Better iterative forecasting by updating key features"""
+            """Safe iterative prediction with bounds checking"""
+            if start_idx >= len(Data):
+                return [Data['Close'].iloc[-1]] * steps  # fallback
+
             current_row = Data.iloc[start_idx].copy()
             current_features = X_scaled[start_idx].copy().reshape(1, -1)
             predictions = []
             
             for step in range(1, steps + 1):
-                # Predict next close
                 pred = model.predict(current_features.reshape(1, current_features.shape[1], 1))[0][0]
                 predictions.append(pred)
                 
-                # Update features for next iteration
+                # Safe feature updates
                 current_row['Close'] = pred
-                if step == 1:
-                    current_row['Open'] = pred  # assume next open ≈ previous close
+                current_row['Open'] = pred if step == 1 else current_row['Close']  # assume open ≈ prev close
                 
-                current_row['Daily_Return'] = (pred - Data['Close'].iloc[start_idx + step - 1]) / Data['Close'].iloc[start_idx + step - 1] if step > 1 else 0
-                current_row['Daily_Range'] = current_row.get('Daily_Range', pred * 0.02)  # rough estimate
+                # Safe historical reference
+                prev_idx = min(start_idx + step - 1, len(Data) - 1)
+                prev_close = Data['Close'].iloc[prev_idx]
+                
+                current_row['Daily_Return'] = (pred - prev_close) / prev_close if prev_close != 0 else 0
                 current_row['Close_Open_Ratio'] = pred / current_row['Open']
+                current_row['Daily_Range'] = current_row.get('Daily_Range', pred * 0.02)
                 
-                # Recalculate rolling features approximately
-                current_row['Volatility_5'] = current_row.get('Volatility_5', Data['Volatility_5'].iloc[start_idx])
-                current_row['Volatility_10'] = current_row.get('Volatility_10', Data['Volatility_10'].iloc[start_idx])
-                current_row['Volatility_20'] = current_row.get('Volatility_20', Data['Volatility_20'].iloc[start_idx])
+                # Keep rolling features stable (prevent drift)
+                for col in ['Volatility_5', 'Volatility_10', 'Volatility_20']:
+                    if col in current_row:
+                        current_row[col] = Data[col].iloc[prev_idx]
                 
-                # Re-transform the updated row
+                # Re-transform
                 updated_df = pd.DataFrame([current_row[possible_col]])
                 current_features = preprocess_pipeline.transform(updated_df)
             
