@@ -6,7 +6,6 @@ import joblib
 import os
 from datetime import timedelta, date
 
-# Import your preprocessing
 try:
     from src.Data_split import datascale
 except ImportError:
@@ -24,12 +23,11 @@ def pred():
     uploaded_file = st.file_uploader("Upload your TSLA.csv file", type=["csv", "xlsm"])
 
     if uploaded_file is not None:
-        # ==================== LOAD & PREPROCESS ====================
+        # Load and preprocess
         Data = pd.read_csv(uploaded_file)
-                         # Original for display
+        Data2 = Data.copy()
         
         Data['Date'] = pd.to_datetime(Data['Date'], errors='coerce')
-        Data2 = Data.copy()    
         Data = Data.dropna(subset=['Date']).sort_values('Date')
         Data.set_index('Date', inplace=True)
 
@@ -75,43 +73,57 @@ def pred():
         min_date = Data2['Date'].min().date()
         last_data_date = Data.index.max().date()
         today = date.today()
-        max_picker_date = today + timedelta(days=30)   # Allow selecting up to 30 days in future
+        max_picker_date = today + timedelta(days=60)
 
         col1, col2 = st.columns(2)
         with col1:
-            start_date = st.date_input("Start Date", 
-                                       value=min_date, 
-                                       min_value=min_date, 
-                                       max_value=last_data_date)
-
+            start_date = st.date_input("Start Date", value=min_date, 
+                                       min_value=min_date, max_value=last_data_date)
         with col2:
-            # Safe default: use last date in data or today (whichever is earlier)
             default_date = min(last_data_date, today)
             selected_date = st.date_input("Prediction Start Date", 
                                           value=default_date,
                                           min_value=min_date, 
                                           max_value=max_picker_date)
 
-        # Handle selected date (could be future)
         end_dt = pd.to_datetime(selected_date)
         if end_dt not in Data.index:
-            end_dt = Data.index.max()  # Fallback to latest available date
-            st.warning(f"⚠️ Selected date **{selected_date}** is not in your uploaded data. "
-                      f"Using the latest available date: **{end_dt.date()}** for prediction.")
+            end_dt = Data.index.max()
+            st.warning(f"⚠️ Using latest available date: **{end_dt.date()}**")
 
         current_price = Data.loc[end_dt, 'Close']
         end_idx = Data.index.get_loc(end_dt)
 
-        # ==================== FUTURE PREDICTIONS ====================
+        # ==================== IMPROVED MULTI-STEP PREDICTION ====================
         def predict_future_steps(start_idx, steps):
+            """Better iterative forecasting by updating key features"""
+            current_row = Data.iloc[start_idx].copy()
             current_features = X_scaled[start_idx].copy().reshape(1, -1)
             predictions = []
             
-            for _ in range(steps):
+            for step in range(1, steps + 1):
+                # Predict next close
                 pred = model.predict(current_features.reshape(1, current_features.shape[1], 1))[0][0]
                 predictions.append(pred)
-                # Simple update (you can improve this later)
-                current_features[0, 0] = pred  
+                
+                # Update features for next iteration
+                current_row['Close'] = pred
+                if step == 1:
+                    current_row['Open'] = pred  # assume next open ≈ previous close
+                
+                current_row['Daily_Return'] = (pred - Data['Close'].iloc[start_idx + step - 1]) / Data['Close'].iloc[start_idx + step - 1] if step > 1 else 0
+                current_row['Daily_Range'] = current_row.get('Daily_Range', pred * 0.02)  # rough estimate
+                current_row['Close_Open_Ratio'] = pred / current_row['Open']
+                
+                # Recalculate rolling features approximately
+                current_row['Volatility_5'] = current_row.get('Volatility_5', Data['Volatility_5'].iloc[start_idx])
+                current_row['Volatility_10'] = current_row.get('Volatility_10', Data['Volatility_10'].iloc[start_idx])
+                current_row['Volatility_20'] = current_row.get('Volatility_20', Data['Volatility_20'].iloc[start_idx])
+                
+                # Re-transform the updated row
+                updated_df = pd.DataFrame([current_row[possible_col]])
+                current_features = preprocess_pipeline.transform(updated_df)
+            
             return predictions
 
         pred_1d = predict_future_steps(end_idx, 1)[0]
@@ -134,17 +146,11 @@ def pred():
         mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= end_dt)
         hist_df = Data2[mask]
 
-        fig.add_trace(go.Scatter(
-            x=hist_df['Date'], y=hist_df['Close'],
-            mode='lines', name='Historical Close',
-            line=dict(color='royalblue', width=2)
-        ))
+        fig.add_trace(go.Scatter(x=hist_df['Date'], y=hist_df['Close'],
+                                 mode='lines', name='Historical Close',
+                                 line=dict(color='royalblue', width=2)))
 
-        future_dates = [
-            end_dt + timedelta(days=1),
-            end_dt + timedelta(days=5),
-            end_dt + timedelta(days=10)
-        ]
+        future_dates = [end_dt + timedelta(days=d) for d in [1, 5, 10]]
         future_prices = [pred_1d, pred_5d, pred_10d]
 
         fig.add_trace(go.Scatter(
@@ -156,10 +162,8 @@ def pred():
         ))
 
         fig.update_layout(
-            xaxis_title="Date",
-            yaxis_title="Price (USD)",
-            template="plotly_white",
-            hovermode="x unified",
+            xaxis_title="Date", yaxis_title="Price (USD)",
+            template="plotly_white", hovermode="x unified",
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
         )
 
