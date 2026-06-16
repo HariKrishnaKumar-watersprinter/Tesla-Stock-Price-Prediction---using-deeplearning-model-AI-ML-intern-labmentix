@@ -88,7 +88,7 @@ def datascale():
                           np.maximum(abs(df['High'] - df['Close'].shift(1)),
                                      abs(df['Low'] - df['Close'].shift(1))))
     df['ATR_14'] = df['TR'].rolling(window=14).mean()
-    possible_col=['Open','MACD','OBV','Volume_Rolling_Mean_20','ATR_14','Volatility_20','Year','Volume_Rolling_Mean_10','Close_Open_Ratio','Volatility_5','Price_Rate_Of_Change_20','Volatility_10','Daily_Return','Daily_Range','Volume_Rolling_Mean_5']
+    possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
     df=df.reindex(columns=possible_col)
     pipeline_steps = [
                ('imputer', SimpleImputer(strategy='mean')), # Safety for any NaNs
