@@ -4,7 +4,7 @@
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.12%2B-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![Plotly](https://img.shields.io/badge/Plotly-Interactive-3F4F75?style=for-the-badge&logo=plotly&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)
+
 
 An industry-grade, end-to-end quantitative framework for predicting Tesla (TSLA) stock prices using advanced Deep Learning architectures (SimpleRNN, LSTM, Transformer). This project features a complete pipeline from high-frequency data wrangling and 20-chart interactive EDA to hyperparameter-tuned multi-horizon forecasting and SHAP-based model explainability, all deployed within a professional Streamlit dashboard.
 
