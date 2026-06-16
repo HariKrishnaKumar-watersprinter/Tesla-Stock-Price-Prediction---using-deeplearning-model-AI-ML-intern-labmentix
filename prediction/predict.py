@@ -65,7 +65,7 @@ def pred():
                 st.error(f"Error: Model file not found at: {model_path}. Please ensure 'LSTM.pkl' exists in the 'model' directory.")
                 st.stop()
 
-        predict = model.predict(single_lstm)
+        predict = model.predict(single)
 
         # ---- Date range selection ----
         st.subheader("📅 Select Date Range")
