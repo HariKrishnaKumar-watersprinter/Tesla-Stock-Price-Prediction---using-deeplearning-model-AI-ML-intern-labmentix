@@ -100,7 +100,7 @@ def pred():
             nearest_idx = pred_df.index.get_indexer([end_ts], method='nearest')[0]
             end_ts = pred_df.index[nearest_idx]
 
-        end_date_idx = pred_df.index.get_loc(end_ts.date())
+        end_date_idx = pred_df.index.get_loc(end_ts.date().strftime("%Y-%m-%d"))
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
