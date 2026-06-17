@@ -62,16 +62,15 @@ def pred():
         st.subheader("📅 Select Date Range")
         min_date = pred_df.index.min()
         max_date = pred_df.index.max()
-        today    = datetime.datetime.now().date()
 
-        # Clamp default end_date to the dataset's max_date so we never pick a future date
-        default_end = max(min_date.date(), min(today, max_date.date()))
+        # Default to 10 days before the max available date to ensure look-ahead metrics are not NaN
+        default_end = max(min_date.date(), (max_date - timedelta(days=10)).date())
 
         col1, col2 = st.columns(2)
         with col1:
-            start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
+            start_date = st.date_input("Start Date", value=min_date.date(), min_value=min_date.date(), max_value=max_date.date())
         with col2:
-            end_date = st.date_input("End Date (Prediction starts from here)", value= max_date, min_value=min_date, max_value=max_date)
+            end_date = st.date_input("End Date (Prediction starts from here)", value=default_end, min_value=min_date.date(), max_value=max_date.date())
 
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
