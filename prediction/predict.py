@@ -128,13 +128,13 @@ def pred():
         st.subheader("📊 Historical Chart & Future Forecast Points")
         # Show 30 days of history before the selected date for context
         chart_start = max(min_date, end_ts - timedelta(days=30))
-        mask = (Data2['Adj Close'] >= chart_start) & (Data2['Adj Close'] <= end_ts)
+        mask = (Data2['Date'] >= chart_start) & (Data2['Date'] <= end_ts)
         display_df = Data2[mask]   # ✅ Fixed: Data2 is the DataFrame, not `pred`
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=display_df['Date'],
-            y=display_df['Close'],
+            y=display_df['Adj Close'],
             mode='lines',
             name='Historical Close',
             line=dict(color='royalblue', width=2)
