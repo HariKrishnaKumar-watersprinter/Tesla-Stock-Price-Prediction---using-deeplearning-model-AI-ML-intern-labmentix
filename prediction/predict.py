@@ -80,10 +80,7 @@ def pred():
         with col1:
             start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
         with col2:
-            end_date = st.date_input("End Date (Prediction starts from here)",
-                                     value=default_end,
-                                     min_value=min_date,
-                                     max_value=max_date)
+            end_date = st.date_input("End Date (Prediction starts from here)",value=default_end,min_value=min_date,max_value=max_date)
 
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
@@ -100,7 +97,7 @@ def pred():
 
             end_ts = available_dates[-1]
 
-        end_date_idx = pred_df.index.get_loc(end_ts)
+        end_date_idx = pred_df.index.get_loc(end_date)
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
