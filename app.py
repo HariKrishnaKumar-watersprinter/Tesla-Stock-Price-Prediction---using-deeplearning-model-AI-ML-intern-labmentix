@@ -85,7 +85,7 @@ st.markdown("""
 with st.sidebar:
     st.markdown("### ⚙️ Configuration Panel")
     uploaded_file = st.file_uploader("Import Market Data (CSV)", type=['csv'], label_visibility="collapsed")
-    options = ["🏠 Home & Executive Summary", #'📊 Transaction Dynamics', #'📱 Device Dominance', 
+    options = ["🏠 Analytics", #'📊 Transaction Dynamics', #'📱 Device Dominance', 
            #'💰 Insurance Penetration', '📈 Market Expansion', '💼 User Hotspots','🗺️ Payment Performance'
            #,"📈 Trend Analysis","🚨 Competitive Benchmarking","📈 Product Development",'📊 Correlation Heatmap',"🚨Fraud Detection (ML)",
            "📈 Prediction"]
@@ -122,15 +122,15 @@ if selection == "🏠 Home & Executive Summary" and not df.empty:
     
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8,tab9,tab10 = st.tabs([
            "📊 Key Market Statistics",
-           "📱 Price Action & Liquidity Trajectory",
-           "💰 Statistical Distribution Profile",
+           "💰 Price Action & Liquidity Trajectory",
+           "📈 Statistical Distribution Profile",
            "📈 Temporal & Seasonal Boundaries",
-           "💼 Volatility & Regime Density",
+           "📈 Volatility & Regime Density",
            "📊 Intra-Day Price Correlation",
            "📈 Liquidity vs. Valuation Dynamics",
-           "🚨 Technical Charting & Trend Architecture",
+           "📊 Technical Charting & Trend Architecture",
            '📊 Macro Price Indexing & Correlation',
-           "🚨 Spatial & Multi-Dimensional Mapping",
+           "📊 Spatial & Multi-Dimensional Mapping",
            
            ])
     with tab1:
