@@ -35,7 +35,7 @@ def pred():
         Data['Volume_Rolling_Mean_10'] = Data['Volume'].rolling(window=10).mean()
         Data['Volume_Rolling_Mean_5']  = Data['Volume'].rolling(window=5).mean()
         
-        Data = Data.dropna()
+       
 
         possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
         Data1 = Data.reindex(columns=possible_col)
