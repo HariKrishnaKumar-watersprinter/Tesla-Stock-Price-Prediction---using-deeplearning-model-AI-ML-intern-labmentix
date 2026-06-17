@@ -81,7 +81,7 @@ def pred():
             start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
         with col2:
             end_date = st.date_input("End Date (Prediction starts from here)",
-                                     value=datetime.datetime.now().date(),
+                                     value=default_end,
                                      min_value=min_date,
                                      max_value=max_date)
 
