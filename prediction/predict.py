@@ -69,9 +69,9 @@ def pred():
 
         # ---- Date range selection ----
         st.subheader("📅 Select Date Range")
-        min_date = pred_df.index.min().date()
-        max_date = pred_df.index.max().date()
-        today    = datetime.datetime.now().date()
+        min_date = pred_df.index.min()
+        max_date = pred_df.index.max()
+        today    = datetime.datetime.now()
 
         # Clamp default end_date to the dataset's max_date so we never pick a future date
         default_end = min(today, max_date)
