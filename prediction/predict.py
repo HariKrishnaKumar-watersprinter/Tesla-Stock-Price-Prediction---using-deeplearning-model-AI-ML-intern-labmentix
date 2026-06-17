@@ -90,7 +90,7 @@ def pred():
             st.stop()
 
         # ---- Safe index lookup ----
-        end_ts = pd.Timestamp(end_date)
+        end_ts = pd.to_datetime(end_date)
 
         if end_ts not in pred_df.index:
             available_dates = pred_df.index[pred_df.index <= end_ts]
