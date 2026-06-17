@@ -108,10 +108,10 @@ def pred():
             p_val = f"${pred:.2f}" if not pd.isna(pred) else "N/A"
             if pd.isna(actual) or pd.isna(pred) or actual == 0:
                 a_val = f"${actual:.2f}" if not pd.isna(actual) else "N/A"
-                return f"Predicted: {p_val}"
+                return f"Predicted: {p_val}", f"Actual: {a_val}"
             
             err = ((pred - actual) / actual) * 100
-            return f"Predicted: {p_val}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
+            return f"Predicted: {p_val}"
 
         p1, a1   = format_metric(pred_1d,  actual_1d)
         p5, a5   = format_metric(pred_5d,  actual_5d)
