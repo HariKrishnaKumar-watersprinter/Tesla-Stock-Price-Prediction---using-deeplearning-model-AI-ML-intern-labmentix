@@ -54,7 +54,7 @@ def pred():
                 st.stop()
 
         predict = model.predict(single)
-        pred_df = pd.DataFrame(predict.reshape(-1, 1).astype(int)),
+        pred_df = pd.DataFrame(predict.reshape(-1, 1).astype(int),
                                columns=['Predicted Close price'],
                                index=Data.index)
 
