@@ -16,16 +16,13 @@ def multi(df):
         fig17.update_layout(title='3D Valuation Landscape')
         st.plotly_chart(fig17, use_container_width=True)
     with col2:
-        fig20 = px.scatter(df, x='Close', y='Volume', size='Daily_Range', color='Year',
-                   title='Bubble Chart - Close vs Volume (Size=Daily Range)',
-                   color_continuous_scale='Plasma', opacity=0.6, size_max=30)
-        fig20.update_layout(xaxis_title='Close Price ($)', yaxis_title='Volume', template='plotly_dark')
-        st.plotly_chart(fig20, use_container_width=True)
-    
-
-    fig19 = px.scatter_matrix(df, dimensions=['Open', 'High', 'Low', 'Close', 'Volume'],
+        fig19 = px.scatter_matrix(df, dimensions=['Open', 'High', 'Low', 'Close', 'Volume'],
                           color='Year', title='Scatter Matrix',
                           color_continuous_scale='mint', height=800)
-    fig19.update_traces(diagonal_visible=True, showupperhalf=False)
-    fig19.update_layout(template='plotly_dark')
-    st.plotly_chart(fig19, width='stretch')
+        fig19.update_traces(diagonal_visible=True, showupperhalf=False)
+        fig19.update_layout(template='plotly_dark')
+        st.plotly_chart(fig19, width='stretch')
+        
+    
+
+    
