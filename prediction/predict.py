@@ -71,16 +71,16 @@ def pred():
         st.subheader("📅 Select Date Range")
         min_date = pred_df.index.min()
         max_date = pred_df.index.max()
-        today    = datetime.datetime.now()
+        today    = datetime.datetime.now().date()
 
         # Clamp default end_date to the dataset's max_date so we never pick a future date
-        default_end = min(today, max_date)
+        default_end = max(min_date.date(), min(today, max_date.date()))
 
         col1, col2 = st.columns(2)
         with col1:
             start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
         with col2:
-            end_date = st.date_input("End Date (Prediction starts from here)",value=default_end,min_value=min_date,max_value=max_date)
+            end_date = st.date_input("End Date (Prediction starts from here)", value=default_end, min_value=min_date, max_value=max_date + timedelta(days=10))
 
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
@@ -120,8 +120,13 @@ def pred():
         current_price = Data['Close'].iloc[end_date_idx]
 
         def format_metric(pred, actual):
+            p_val = f"${pred:.2f}" if not pd.isna(pred) else "N/A"
+            if pd.isna(actual) or pd.isna(pred) or actual == 0:
+                a_val = f"${actual:.2f}" if not pd.isna(actual) else "N/A"
+                return f"Predicted: {p_val}", f"Actual: {a_val}"
+            
             err = ((pred - actual) / actual) * 100
-            return f"Predicted: ${pred:.2f}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
+            return f"Predicted: {p_val}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
 
         p1, a1   = format_metric(pred_1d,  actual_1d)
         p5, a5   = format_metric(pred_5d,  actual_5d)
