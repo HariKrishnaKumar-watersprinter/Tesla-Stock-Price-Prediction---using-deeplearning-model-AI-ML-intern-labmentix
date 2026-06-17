@@ -108,7 +108,7 @@ def pred():
             p_val = f"${pred:.2f}" if not pd.isna(pred) else "N/A"
             if pd.isna(actual) or pd.isna(pred) or actual == 0:
                 a_val = f"${actual:.2f}" if not pd.isna(actual) else "N/A"
-                return f"Predicted: {p_val}", f"Actual: {a_val}"
+                return f"Predicted: {p_val}"
             
             err = ((pred - actual) / actual) * 100
             return f"Predicted: {p_val}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
