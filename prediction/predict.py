@@ -70,7 +70,7 @@ def pred():
         with col1:
             start_date = st.date_input("Start Date", value=min_date.date(), min_value=min_date.date(), max_value=max_date.date())
         with col2:
-            end_date = st.date_input("End Date (Prediction starts from here)", value=default_end, min_value=min_date.date(), max_value=max_date.date())
+            end_date = st.date_input("End Date (Prediction starts from here)", value = max_date, min_value=min_date.date(), max_value=max_date.date())
 
         if start_date > end_date:
             st.error("❌ Error: End Date must fall after Start Date.")
