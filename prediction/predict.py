@@ -97,7 +97,7 @@ def pred():
 
             end_ts = available_dates[-1]
 
-        end_date_idx = pred_df.index.get_loc(end_date)
+        end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
 
         # ---- Build prediction DataFrame aligned to Data.index ----
