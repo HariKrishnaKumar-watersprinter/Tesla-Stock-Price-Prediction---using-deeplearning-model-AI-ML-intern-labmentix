@@ -102,7 +102,8 @@ def pred():
 
         # Current price from the (possibly shifted) end_ts
         current_price = Data['Close'].iloc[end_date_idx]
-
+        if current_price is None:
+            current_price = pred_df['Predicted Close price'].iloc[end_date_idx - 1]
         def format_metric(pred, actual):
             p_val = f"${pred:.2f}" if not pd.isna(pred) else "N/A"
             if pd.isna(actual) or pd.isna(pred) or actual == 0:
