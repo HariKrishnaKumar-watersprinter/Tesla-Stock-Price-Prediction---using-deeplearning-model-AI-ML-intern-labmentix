@@ -22,10 +22,12 @@ def pred():
     if uploaded_file is not None:
         Data = pd.read_csv(uploaded_file)
         Data['Date'] = pd.to_datetime(Data['Date'], format='%Y-%m-%d')
+
         Data2 = Data.copy()
+
         Data.set_index('Date', inplace=True)
         Data.sort_index(inplace=True)
-
+        
         # ---- Feature engineering ----
         Data['Year'] = Data.index.year
         
@@ -35,7 +37,7 @@ def pred():
         Data['Volume_Rolling_Mean_10'] = Data['Volume'].rolling(window=10).mean()
         Data['Volume_Rolling_Mean_5']  = Data['Volume'].rolling(window=5).mean()
         
-       
+        Data = Data.dropna()
 
         possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
         Data1 = Data.reindex(columns=possible_col)
@@ -82,7 +84,7 @@ def pred():
         end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
 
-        
+        # ---- Build prediction DataFrame aligned to Data.index ----
         
 
         # ---- Extract 1d / 5d / 10d predictions & actuals ----
