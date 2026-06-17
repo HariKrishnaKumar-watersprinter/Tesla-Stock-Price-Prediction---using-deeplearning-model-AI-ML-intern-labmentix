@@ -59,25 +59,17 @@ def pred():
                                index=Data.index)
 
         # ---- Date range selection ----
-        st.subheader("📅 Select Date Range")
+        st.subheader("📅 Select Reference Date")
         min_date = pred_df.index.min()
         max_date = pred_df.index.max()
 
         # Default to 10 days before the max available date to ensure look-ahead metrics are not NaN
-        default_end = max(min_date.date(), (max_date - timedelta(days=10)).date())
+        default_date = max(min_date.date(), (max_date - timedelta(days=10)).date())
 
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = st.date_input("Start Date", value=min_date.date(), min_value=min_date.date(), max_value=max_date.date())
-        with col2:
-            end_date = st.date_input("End Date (Prediction starts from here)", value = max_date, min_value=min_date.date(), max_value=max_date.date())
-
-        if start_date > end_date:
-            st.error("❌ Error: End Date must fall after Start Date.")
-            st.stop()
+        selected_date = st.date_input("Prediction Reference Date", value=default_date, min_value=min_date.date(), max_value=max_date.date())
 
         # ---- Safe index lookup ----
-        end_ts = pd.to_datetime(end_date)
+        end_ts = pd.to_datetime(selected_date)
 
         if end_ts not in pred_df.index:
             available_dates = pred_df.index[pred_df.index <= end_ts]
@@ -131,7 +123,9 @@ def pred():
 
         # ---- Visualization ----
         st.subheader("📊 Historical Chart & Future Forecast Points")
-        mask = (Data2['Date'] >= pd.to_datetime(start_date)) & (Data2['Date'] <= end_ts)
+        # Show 30 days of history before the selected date for context
+        chart_start = max(min_date, end_ts - timedelta(days=30))
+        mask = (Data2['Date'] >= chart_start) & (Data2['Date'] <= end_ts)
         display_df = Data2[mask]   # ✅ Fixed: Data2 is the DataFrame, not `pred`
 
         fig = go.Figure()
