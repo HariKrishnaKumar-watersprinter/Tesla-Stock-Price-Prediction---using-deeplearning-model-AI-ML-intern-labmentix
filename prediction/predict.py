@@ -37,7 +37,7 @@ def pred():
         Data['Volume_Rolling_Mean_10'] = Data['Volume'].rolling(window=10).mean()
         Data['Volume_Rolling_Mean_5']  = Data['Volume'].rolling(window=5).mean()
         
-       
+        Data = Data.dropna()
 
         possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
         Data1 = Data.reindex(columns=possible_col)
@@ -68,7 +68,7 @@ def pred():
         # Default to 10 days before the max available date to ensure look-ahead metrics are not NaN
         default_date = max(min_date.date(), (max_date - timedelta(days=10)).date())
 
-        selected_date = st.date_input("Prediction Reference Date", value=default_date, min_value=min_date.date(), max_value=max_date.date())
+        selected_date = st.date_input("Prediction Reference Date", value=min_date.date(), min_value=min_date.date(), max_value=max_date.date())
 
         # ---- Safe index lookup ----
         end_ts = pd.to_datetime(selected_date)
