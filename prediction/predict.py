@@ -82,7 +82,7 @@ def pred():
         end_date_idx = pred_df.index.get_loc(end_ts)
         data_len = len(pred_df)
 
-        # ---- Build prediction DataFrame aligned to Data.index ----
+        
         
 
         # ---- Extract 1d / 5d / 10d predictions & actuals ----
@@ -126,16 +126,39 @@ def pred():
         # Show 30 days of history before the selected date for context
         chart_start = max(min_date, end_ts - timedelta(days=30))
         mask = (Data2['Date'] >= chart_start) & (Data2['Date'] <= end_ts)
-        display_df = Data2[mask]   # ✅ Fixed: Data2 is the DataFrame, not `pred`
+        display_df = Data2[mask].copy()
 
         fig = go.Figure()
+
+        # Prepare data for colored segments
+        x_green, y_green = [], []
+        x_red, y_red = [], []
+
+        # Iterate from the second data point to compare with the previous one
+        for i in range(1, len(display_df)):
+            current_date = display_df['Date'].iloc[i]
+            current_close = display_df['Close'].iloc[i]
+            prev_date = display_df['Date'].iloc[i-1]
+            prev_close = display_df['Close'].iloc[i-1]
+
+            if current_close > prev_close: # Increment
+                x_green.extend([prev_date, current_date, None]) # Add None to break the line
+                y_green.extend([prev_close, current_close, None])
+            elif current_close < prev_close: # Decrement
+                x_red.extend([prev_date, current_date, None]) # Add None to break the line
+                y_red.extend([prev_close, current_close, None])
+            # Flat segments are not explicitly colored by the request, so they are omitted from these traces.
+
+        # Add green trace for price increases
         fig.add_trace(go.Scatter(
-            x=display_df['Date'],
-            y=display_df['Close'],
-            mode='lines',
-            name='Historical Close',
-            line=dict(color='royalblue', width=2)
+            x=x_green, y=y_green, mode='lines', name='Price Increase', line=dict(color='green', width=2)
         ))
+
+        # Add red trace for price decreases
+        fig.add_trace(go.Scatter(
+            x=x_red, y=y_red, mode='lines', name='Price Decrease', line=dict(color='red', width=2)
+        ))
+
 
         # Predicted future points — use the index dates so they fall on real trading days
         future_idx   = [end_date_idx + 1, end_date_idx + 5, end_date_idx + 10]
