@@ -101,7 +101,7 @@ def pred():
         actual_10d= safe_get(Data['Close'], end_date_idx + 10)
 
         # Current price from the (possibly shifted) end_ts
-        current_price = Data['Close'].iloc[end_date_idx]
+        current_price = Data['Adj Close'].iloc[end_date_idx]
         if current_price is np.nan and end_date_idx > 0:
             current_price = pred_df['Predicted Close price'].iloc[end_date_idx - 1]
         def format_metric(pred, actual):
