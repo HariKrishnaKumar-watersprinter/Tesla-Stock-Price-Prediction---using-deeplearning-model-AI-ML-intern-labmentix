@@ -99,7 +99,7 @@ def load_data(uploaded_file):
         df = create_features(fetch_raw_data())
     return df
 df = load_data(uploaded_file)
-if selection == "🏠 Home & Executive Summary" and not df.empty:
+if selection == "🏠 Analytics" and not df.empty:
     #st.title("📈 Tesla Stock Price Analytics and Deep Learning Predictor ")
     #st.write("""
     #This dashboard presents findings from the PhonePe Pulse GitHub data analysis. 
