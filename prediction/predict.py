@@ -111,7 +111,7 @@ def pred():
                 return f"Predicted: {p_val}", f"Actual: {a_val}"
             
             err = ((pred - actual) / actual) * 100
-            return f"Predicted: {p_val}"
+            return f"Predicted: {p_val}", f"Actual: ${actual:.2f} ({err:+.2f}%)"
 
         p1, a1   = format_metric(pred_1d,  actual_1d)
         p5, a5   = format_metric(pred_5d,  actual_5d)
