@@ -28,22 +28,13 @@ def pred():
 
         # ---- Feature engineering ----
         Data['Year'] = Data.index.year
-        Data['Daily_Return'] = Data['Close'].pct_change()
+        
         Data['Daily_Range'] = Data['High'] - Data['Low']
-        Data['MACD'] = Data['Close'].ewm(span=12, adjust=False).mean() - Data['Close'].ewm(span=26, adjust=False).mean()
-        Data['OBV'] = (np.sign(Data['Close'].diff()) * Data['Volume']).cumsum()
+        
         Data['Volume_Rolling_Mean_20'] = Data['Volume'].rolling(window=20).mean()
         Data['Volume_Rolling_Mean_10'] = Data['Volume'].rolling(window=10).mean()
         Data['Volume_Rolling_Mean_5']  = Data['Volume'].rolling(window=5).mean()
-        Data['Volatility_20'] = Data['Close'].rolling(window=20).std()
-        Data['Volatility_5']  = Data['Close'].rolling(window=5).std()
-        Data['Volatility_10'] = Data['Close'].rolling(window=10).std()
-        Data['Price_Rate_Of_Change_20'] = Data['Close'].pct_change(20)
-        Data['Close_Open_Ratio'] = Data['Close'] / Data['Open']
-        Data['TR'] = np.maximum(Data['High'] - Data['Low'],
-                       np.maximum(abs(Data['High'] - Data['Close'].shift(1)),
-                                  abs(Data['Low']  - Data['Close'].shift(1))))
-        Data['ATR_14'] = Data['TR'].rolling(window=14).mean()
+        
         Data = Data.dropna()
 
         possible_col=['Open','Volume_Rolling_Mean_20','Year','Volume_Rolling_Mean_10','Daily_Range','Volume_Rolling_Mean_5']
